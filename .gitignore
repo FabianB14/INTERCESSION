@@ -1,0 +1,50 @@
+/[Ll]ibrary/
+/[Tt]emp/
+/[Oo]bj/
+/[Bb]uild/
+/[Bb]uilds/
+/[Ll]ogs/
+/[Uu]ser[Ss]ettings/
+/[Mm]emoryCaptures/
+/[Rr]ecordings/
+
+# Never commit generated solution/project files
+*.csproj
+*.unityproj
+*.sln
+*.suo
+*.user
+*.userprefs
+*.pidb
+*.booproj
+*.svd
+*.pdb
+*.mdb
+*.opendb
+*.VC.db
+
+# Unity3D generated crash report
+sysinfo.txt
+
+# Builds
+*.apk
+*.aab
+*.unitypackage
+*.app
+
+# Visual Studio / Rider
+.vs/
+.idea/
+.vsconfig
+
+# Steam
+steam_api*.log
+Assets/Plugins/Steamworks*/**/steam_appid.txt
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Test results
+/[Tt]est[Rr]esults/
+*.TestResults.xml

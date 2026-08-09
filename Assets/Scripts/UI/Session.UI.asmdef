@@ -1,0 +1,17 @@
+{
+    "name": "Session.UI",
+    "rootNamespace": "Session.UI",
+    "references": [
+        "Session.Core",
+        "Session.Runtime"
+    ],
+    "includePlatforms": [],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": [],
+    "versionDefines": [],
+    "noEngineReferences": false
+}
