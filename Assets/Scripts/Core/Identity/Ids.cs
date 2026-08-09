@@ -97,6 +97,32 @@ namespace Session.Core.Identity
         public static bool operator !=(ClueId a, ClueId b) => a.Value != b.Value;
     }
 
+    /// <summary>
+    /// One intake tape. Recordings are canonical — every player hears the same words, because a
+    /// tape is a recording of a real man's voice, not a reconstruction the building assembled.
+    /// </summary>
+    public readonly struct TapeId : IEquatable<TapeId>
+    {
+        public static readonly TapeId None = new TapeId(0);
+
+        public readonly int Value;
+
+        public TapeId(int value)
+        {
+            Value = value;
+        }
+
+        public bool IsNone => Value == 0;
+
+        public bool Equals(TapeId other) => Value == other.Value;
+        public override bool Equals(object? obj) => obj is TapeId other && Equals(other);
+        public override int GetHashCode() => Value;
+        public override string ToString() => IsNone ? "Tape(none)" : "Tape(" + Value + ")";
+
+        public static bool operator ==(TapeId a, TapeId b) => a.Value == b.Value;
+        public static bool operator !=(TapeId a, TapeId b) => a.Value != b.Value;
+    }
+
     /// <summary>A node in a room's puzzle graph.</summary>
     public readonly struct PuzzleNodeId : IEquatable<PuzzleNodeId>
     {

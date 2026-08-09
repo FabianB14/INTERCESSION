@@ -114,6 +114,11 @@ error rather than guessing if the counts disagree.
     point of paper.
 11. **Paper props**: `PaperPropView` beside the prop's `PropView`, with one `DocumentSO` per
     variant **in the same order as the `RoomLayoutSO`'s variant list**.
+12. **Tape deck prefab**: `TapeDeckNetBehaviour` + `NetworkObject` + `AudioSource` (3D, spatial
+    blend 1). Assign an `SO_Tape`. Wire the deck's interaction to `TogglePlayRpc`.
+13. **Transcript overlay** on the HUD canvas: `TranscriptView` (CanvasGroup, line label,
+    attribution label). Put `TapeBinder` on the HUD root, point it at the transcript, and list
+    every deck in the scene.
 
 ### Authoring a paper prop
 
@@ -151,6 +156,7 @@ Run all three before any content commit:
 | `Session > Validate Room Layouts` | A room one player could solve alone, over 2000 seeds × 2–4 players |
 | `Session > Validate Accent Colour Use` | #FF8A3D on anything that is not interactable |
 | `Session > Validate Paper Props` | A concealing document that spells out the answer anyway |
+| `Session > Validate Intake Tapes` | A tape that speaks an answer, duplicate tape ids, missing or thin transcripts |
 
 The third is the one to run most. Write the withheld version of a patient file, mark the obvious
 line as ClueBearing, and forget the same four digits appear two paragraphs down as a ward
@@ -160,6 +166,14 @@ premise.
 
 It is a literal-match check: it finds "4172", "4-1-7-2" and "4 1 7 2", and it will **not** find the
 answer paraphrased ("the year the annex opened"). A human still has to read the copy.
+
+The tape check is the same idea with a sharper edge. A document *can* carry a clue, because each
+player reads a different document. **A tape cannot** — it is a recording, so everyone hears the
+same words. An answer spoken on tape does not leak to one player; it hands the whole group the
+same clue, and that room instantly needs no co-operation from anybody. Nobody involved experiences
+anything odd, so a play test reads it as the room being easy rather than as the central mechanic
+switching itself off. Every tape is checked against every room's solution, since decks move and
+rooms get reordered.
 
 ## 5. Verify
 
@@ -203,8 +217,13 @@ locked value.
 used consistently across room details, plus the 1979–1984 staff-memo drift. That is writing work,
 and it is the cheapest story-per-pound in the project.
 
-**Intake tapes.** Verity's voice is ranked above paper in LORE.md and there is no audio-log system
-at all yet — no playback component, no transcript surface, no trigger.
+**The tapes themselves.** The deck, sync, transcript and audit all exist; there is no recorded
+audio and no written dialogue. LORE.md ranks this as the single highest story-per-pound asset in
+the project — one VO actor, a good mic, a room's worth of blankets. Verity is warm, unhurried, and
+faintly apologetic about the paperwork, and should be the most likeable thing in the game.
+
+**The Overrun.** Held back deliberately per LORE.md as the Early Access → 1.0 hook. Nothing in the
+codebase references it, which is correct for now.
 
 **Voice tuning under load.** The routing logic is unit tested, but per-frame allocation and
 bandwidth with four speakers has not been profiled — that needs four real clients and the Unity
