@@ -5,6 +5,7 @@
         "Session.Core",
         "Session.Runtime",
         "Session.Netcode",
+        "Session.UI",
         "Unity.Netcode.Runtime",
         "Facepunch Transport for Netcode for GameObjects"
     ],

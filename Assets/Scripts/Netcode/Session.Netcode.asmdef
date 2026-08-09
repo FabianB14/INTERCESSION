@@ -4,6 +4,7 @@
     "references": [
         "Session.Core",
         "Session.Runtime",
+        "Session.UI",
         "Unity.Netcode.Runtime"
     ],
     "includePlatforms": [],

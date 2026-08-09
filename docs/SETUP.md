@@ -63,8 +63,10 @@ Right-click in `Assets/Settings/` (create the folder):
 - **Create > Session > Lens Rules** → `SO_LensRules`
 - **Create > Session > Movement Rules** → `SO_MovementRules`
 - **Create > Session > Voice Rules** → `SO_VoiceRules`
+- **Create > Session > UI Palette** → `SO_UiPalette`
+- **Create > Session > Content Table** → `SO_ContentTable`
 - **Create > Session > Room Layout** → `SO_Room09`
-- **Create > Session > Session Catalog** → `SO_SessionCatalog`, then drag the five above into it
+- **Create > Session > Session Catalog** → `SO_SessionCatalog`, then drag the tuning assets into it
 
 The defaults on the Attendant profile are placeholders with no feel tuned into them. Pacing and
 fear are design calls, so those numbers are yours.
@@ -94,6 +96,38 @@ Roughly a five-minute pass, and the one part I cannot do until MCP is connected:
 Order matters in step 5. `PropView` maps variant index to child index positionally, and it logs an
 error rather than guessing if the counts disagree.
 
+## 4c. UI wiring
+
+6. **Lobby canvas**: `LobbyView` with the host/invite/ready/start/leave buttons and four slot
+   groups. Put `LobbyUiBinder` beside it and point it at the view.
+7. **HUD canvas** (screen space): `InteractionPromptView` (CanvasGroup + TMP label),
+   `SessionLogView` (CanvasGroup + TMP label), `VoiceIndicatorView` (mic icon + four speaker
+   lights). Assign `SO_UiPalette` and `SO_ContentTable` to each.
+8. **`SessionHudBinder`** on the HUD root: point it at the log and the room's keypad, and set the
+   room/node numbers the keypad belongs to.
+9. **Keypad prefab** (world space): `KeypadView` with digit buttons, backspace, submit and a TMP
+   readout. Its code length must match that node's solution length in the `RoomLayoutSO`.
+
+### Copy you need to write
+
+`SO_ContentTable` starts empty. The keys the UI looks for by default:
+
+| Key | Suggested copy |
+|---|---|
+| `ui.verb.examine` / `.use` / `.read` / `.open` | Examine / Use / Read / Open |
+| `ui.log.room_complete` | "This room is complete. You may proceed from" |
+| `ui.log.left_unfinished` | "No room may be left unfinished." |
+| `ui.log.overrun` | "The room is patient. Please continue in" |
+
+Those are placeholders in the Institute's register, not final copy. Per LORE.md the building is
+never threatening in its own voice — the dread is the gap between how politely it speaks and what
+it is doing. Copy is a design call, so it is yours.
+
+## 5b. Validate the accent rule
+
+`Session > Validate Accent Colour Use` scans every material and prefab for #FF8A3D on anything
+that is not interactable. Run it alongside the room validator before content commits.
+
 ## 5. Verify
 
 ```bash
@@ -112,8 +146,13 @@ CLAUDE.md's structure puts NGO inside `Session.Runtime`. It ended up split three
 | Assembly | Contains | Why separate |
 |---|---|---|
 | `Session.Runtime` | ScriptableObjects, `PropView` | Compiles with **no** packages installed, so tuning assets and views stay editable even if networking is mid-upgrade |
-| `Session.Netcode` | All `NetBehaviour` adapters | Needs NGO; platform-agnostic |
-| `Session.Steam` | Lobby, transport glue, voice | The Facepunch transport restricts itself to Editor + standalone platforms, so anything referencing it must too. Folding this into Runtime would drag that constraint across the whole game |
+| `Session.UI` | Views and presenters | References only Core + Runtime + uGUI/TMP, per CLAUDE.md. Knows nothing about NGO or Steam, so lobby and HUD layout can be iterated on before either package finishes importing |
+| `Session.Netcode` | All `NetBehaviour` adapters, HUD binder | Needs NGO; platform-agnostic |
+| `Session.Steam` | Lobby, transport glue, voice, lobby binder | The Facepunch transport restricts itself to Editor + standalone platforms, so anything referencing it must too. Folding this into Runtime would drag that constraint across the whole game |
+
+UI uses **uGUI + TextMeshPro** rather than UI Toolkit. Most of this game's UI is diegetic and
+world-space — keypads on walls, prompts on props — and that is uGUI's strength. Full-screen menus
+would be nicer in UI Toolkit; mixing both was not worth the second system.
 
 Say the word and it collapses back to two assemblies; the split is a judgement call, not a
 requirement.
@@ -123,8 +162,12 @@ requirement.
 **Scene content.** No scenes, prefabs, or materials — `.unity`/`.prefab`/`.asset` YAML is hand-off
 territory until MCP is connected. Section 4b is that hand-off.
 
-**UI.** `Session.UI` is an empty assembly. Lobby screens, the interaction prompt, and the
-push-to-talk indicator all live there and none exist yet.
+**UI art.** The views exist and are wired to Core; no layouts, sprites, fonts or copy do. The
+palette asset holds placeholder values for the five body colours — only the accent is a real,
+locked value.
+
+**Paper props.** Patient files and staff memos are listed in LORE.md as the cheapest story per
+pound in the project, and there is no reader UI for them yet.
 
 **Voice tuning under load.** The routing logic is unit tested, but per-frame allocation and
 bandwidth with four speakers has not been profiled — that needs four real clients and the Unity

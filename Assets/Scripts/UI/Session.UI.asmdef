@@ -3,7 +3,10 @@
     "rootNamespace": "Session.UI",
     "references": [
         "Session.Core",
-        "Session.Runtime"
+        "Session.Runtime",
+        "UnityEngine.UI",
+        "Unity.TextMeshPro",
+        "Unity.InputSystem"
     ],
     "includePlatforms": [],
     "excludePlatforms": [],

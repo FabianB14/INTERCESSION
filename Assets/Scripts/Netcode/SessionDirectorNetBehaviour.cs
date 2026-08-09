@@ -85,9 +85,10 @@ namespace Session.Netcode
                 return;
             }
 
-            // Careful: `??` is wrong on Unity Object references. An unassigned SerializeField is
-            // "fake null" — its overloaded == returns true but it is not a real null reference, so
-            // ?? would happily hand back a dead object. Compare with == null explicitly.
+            // Careful: `??` is wrong on Unity Object references. A destroyed object, or a
+            // reference to an asset that has gone missing, is "fake null" — its overloaded ==
+            // returns true while the C# reference is still non-null, so ?? hands back a dead
+            // object instead of the fallback. Compare with == null explicitly.
             _lensRules = _catalog.LensRules == null ? DefaultLensRules.Instance : _catalog.LensRules;
 
             List<RoomDefinition> rooms;

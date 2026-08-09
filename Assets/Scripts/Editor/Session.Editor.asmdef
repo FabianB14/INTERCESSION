@@ -3,7 +3,10 @@
     "rootNamespace": "Session.Editor",
     "references": [
         "Session.Core",
-        "Session.Runtime"
+        "Session.Runtime",
+        "Session.UI",
+        "UnityEngine.UI",
+        "Unity.TextMeshPro"
     ],
     "includePlatforms": [
         "Editor"
