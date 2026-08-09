@@ -1,0 +1,18 @@
+{
+    "name": "Session.Netcode",
+    "rootNamespace": "Session.Netcode",
+    "references": [
+        "Session.Core",
+        "Session.Runtime",
+        "Unity.Netcode.Runtime"
+    ],
+    "includePlatforms": [],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": [],
+    "versionDefines": [],
+    "noEngineReferences": false
+}

@@ -11,7 +11,7 @@ Read `docs/LORE.md` before writing any content, naming, or dialogue.
 
 - **Unity 6 LTS**, Universal Render Pipeline (Forward+)
 - **Netcode for GameObjects** + **Facepunch.Steamworks** (Steam relay transport)
-- **Vivox** or Steam Voice for proximity chat — decide before vertical slice, do not stub it out
+- **Steam Voice** for proximity chat (decided 2026-08-08, over Vivox — no extra service dependency, no per-seat cost, and Steam is already a hard dependency). Falloff rules live in `Session.Core.Voice` and are unit tested; Steam is only the transport.
 - Input System (not legacy Input)
 - C# 9, nullable enabled in `Session.Core`
 
