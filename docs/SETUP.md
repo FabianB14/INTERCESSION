@@ -107,6 +107,25 @@ error rather than guessing if the counts disagree.
    room/node numbers the keypad belongs to.
 9. **Keypad prefab** (world space): `KeypadView` with digit buttons, backspace, submit and a TMP
    readout. Its code length must match that node's solution length in the `RoomLayoutSO`.
+10. **Reader canvas**: `DocumentReaderView` — CanvasGroup, title/body/page TMP labels, a paper
+    Image, and next/previous/close buttons. Assign `SO_ContentTable` and `SO_UiPalette`.
+    Hook `ReadingStarted`/`ReadingEnded` to slow the player rig — **do not pause anything**. The
+    Attendant keeps walking and the room's allowance keeps running while you read; that is the
+    point of paper.
+11. **Paper props**: `PaperPropView` beside the prop's `PropView`, with one `DocumentSO` per
+    variant **in the same order as the `RoomLayoutSO`'s variant list**.
+
+### Authoring a paper prop
+
+A document is a prop *variant*, so a clue-carrying paper prop needs **two genuinely different
+documents**, not one document with a hole in it. One player has the admission form with the ward
+number on it; the other has the discharge checklist — a real, complete, honest document that simply
+never mentions it. `Session > Validate Paper Props` warns when a concealing variant is just the
+revealing one with a line hidden.
+
+Mark the line carrying the puzzle input as **ClueBearing**. Everything else stays `Body`,
+`Heading`, `Footer`, or `Struck`. Verity's Three Principles are appended automatically to every
+page from the document's footer key.
 
 ### Copy you need to write
 
@@ -123,10 +142,24 @@ Those are placeholders in the Institute's register, not final copy. Per LORE.md 
 never threatening in its own voice — the dread is the gap between how politely it speaks and what
 it is doing. Copy is a design call, so it is yours.
 
-## 5b. Validate the accent rule
+## 5b. Content validators
 
-`Session > Validate Accent Colour Use` scans every material and prefab for #FF8A3D on anything
-that is not interactable. Run it alongside the room validator before content commits.
+Run all three before any content commit:
+
+| Menu item | Catches |
+|---|---|
+| `Session > Validate Room Layouts` | A room one player could solve alone, over 2000 seeds × 2–4 players |
+| `Session > Validate Accent Colour Use` | #FF8A3D on anything that is not interactable |
+| `Session > Validate Paper Props` | A concealing document that spells out the answer anyway |
+
+The third is the one to run most. Write the withheld version of a patient file, mark the obvious
+line as ClueBearing, and forget the same four digits appear two paragraphs down as a ward
+number — the room still gets solved, so nothing *looks* broken. The player who can read it has no
+idea their partner was supposed to be needed. It is invisible in a play test and fatal to the
+premise.
+
+It is a literal-match check: it finds "4172", "4-1-7-2" and "4 1 7 2", and it will **not** find the
+answer paraphrased ("the year the annex opened"). A human still has to read the copy.
 
 ## 5. Verify
 
@@ -166,8 +199,12 @@ territory until MCP is connected. Section 4b is that hand-off.
 palette asset holds placeholder values for the five body colours — only the accent is a real,
 locked value.
 
-**Paper props.** Patient files and staff memos are listed in LORE.md as the cheapest story per
-pound in the project, and there is no reader UI for them yet.
+**The forty-one names.** The reader exists; the files do not. LORE.md wants forty-one intake names
+used consistently across room details, plus the 1979–1984 staff-memo drift. That is writing work,
+and it is the cheapest story-per-pound in the project.
+
+**Intake tapes.** Verity's voice is ranked above paper in LORE.md and there is no audio-log system
+at all yet — no playback component, no transcript surface, no trigger.
 
 **Voice tuning under load.** The routing logic is unit tested, but per-frame allocation and
 bandwidth with four speakers has not been profiled — that needs four real clients and the Unity

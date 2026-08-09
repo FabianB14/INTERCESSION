@@ -41,6 +41,16 @@ namespace Session.Runtime.View
         /// <summary>Whether this player can read the prop's clue. Drives whether the clue surface is legible.</summary>
         public bool RevealsClue { get; private set; }
 
+        /// <summary>
+        /// Which variant this player's lens selected, or -1 before one has been applied. Paper
+        /// props read this to pick the matching document — the same sheet is a different document
+        /// per lens.
+        /// </summary>
+        public int ActiveVariant => _activeVariant;
+
+        /// <summary>Raised when a variant is applied, so companions like PaperPropView can follow.</summary>
+        public event System.Action<int, bool> VariantApplied;
+
         public void Apply(int variantIndex, in PropVariant variant, bool revealsClue)
         {
             DisplayNameKey = variant.DisplayNameKey;
@@ -58,6 +68,10 @@ namespace Session.Runtime.View
 
             if (_variantObjects.Length == 0)
             {
+                // No swappable children — a paper prop whose variance is entirely in its text, for
+                // instance. Still record the variant and notify, or companions never hear about it.
+                _activeVariant = variantIndex;
+                VariantApplied?.Invoke(variantIndex, revealsClue);
                 return;
             }
 
@@ -80,6 +94,7 @@ namespace Session.Runtime.View
             }
 
             _activeVariant = variantIndex;
+            VariantApplied?.Invoke(variantIndex, revealsClue);
         }
     }
 }
