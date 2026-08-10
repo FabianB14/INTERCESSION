@@ -1,5 +1,6 @@
 using Session.Core.Attendant;
 using Session.Core.Content;
+using Session.Core.Identity;
 using Session.Core.Puzzles;
 using Session.Core.Session;
 using Session.UI.Hud;
@@ -99,7 +100,7 @@ namespace Session.Netcode
             _director.SubmitPuzzleRpc(_currentRoomNumber, _currentNodeId, tokens.ToArray());
         }
 
-        private void OnPuzzleResolved(Core.Identity.RoomId room, Core.Identity.PuzzleNodeId node, AttemptOutcome outcome)
+        private void OnPuzzleResolved(RoomId room, PuzzleNodeId node, AttemptOutcome outcome)
         {
             if (_keypad == null)
             {

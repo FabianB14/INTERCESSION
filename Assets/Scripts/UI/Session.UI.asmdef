@@ -5,8 +5,7 @@
         "Session.Core",
         "Session.Runtime",
         "UnityEngine.UI",
-        "Unity.TextMeshPro",
-        "Unity.InputSystem"
+        "Unity.TextMeshPro"
     ],
     "includePlatforms": [],
     "excludePlatforms": [],

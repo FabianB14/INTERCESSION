@@ -45,8 +45,28 @@ namespace Session.Netcode
 
         public override void OnNetworkSpawn()
         {
+            SessionDirectorNetBehaviour director = SessionDirectorNetBehaviour.Instance;
+            if (director != null)
+            {
+                // Someone joining or leaving restages every room, so the lens this peer derived is
+                // stale the moment the count changes. Without this, a mid-run join leaves everyone
+                // rendering a room the server is no longer staging.
+                director.StagedPlayerCountChanged += OnStagedPlayerCountChanged;
+            }
+
             TryApply();
         }
+
+        public override void OnNetworkDespawn()
+        {
+            SessionDirectorNetBehaviour director = SessionDirectorNetBehaviour.Instance;
+            if (director != null)
+            {
+                director.StagedPlayerCountChanged -= OnStagedPlayerCountChanged;
+            }
+        }
+
+        private void OnStagedPlayerCountChanged(int playerCount) => Invalidate();
 
         private void Update()
         {
@@ -79,7 +99,18 @@ namespace Session.Netcode
                 return;
             }
 
-            int playerCount = Mathf.Max(2, NetworkManager.ConnectedClientsIds.Count);
+            // The count comes from the server, not from NetworkManager.ConnectedClientsIds — that
+            // list is only populated on the server, so on a client it would silently produce a
+            // different number, a different lens, and a room nobody else is looking at. That
+            // failure only shows up with three or more players and reads as "perception is
+            // broken" rather than "one integer came from the wrong place".
+            int playerCount = director.StagedPlayerCount;
+            if (playerCount <= 0)
+            {
+                // Rooms have not been staged yet. Retry next frame.
+                return;
+            }
+
             ILensRules rules = _catalog.LensRules == null ? DefaultLensRules.Instance : _catalog.LensRules;
 
             if (!LensAssigner.TryAssign(

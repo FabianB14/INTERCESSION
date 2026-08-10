@@ -45,6 +45,16 @@ namespace Session.Netcode
         /// </summary>
         private readonly NetworkVariable<ulong> _sessionSeed = new NetworkVariable<ulong>();
 
+        /// <summary>
+        /// How many players the server staged the rooms for. Replicated because lens assignment is
+        /// a function of player count, and every peer must feed the assigner the same number or it
+        /// derives a different room than the server staged.
+        ///
+        /// Do not be tempted to read NetworkManager.ConnectedClientsIds.Count on a client instead —
+        /// that list is only populated on the server.
+        /// </summary>
+        private readonly NetworkVariable<int> _stagedPlayerCount = new NetworkVariable<int>();
+
         private SessionDirector _director;
         private MovementSanityChecker _movement;
         private ILensRules _lensRules;
@@ -66,12 +76,23 @@ namespace Session.Netcode
 
         public ulong SessionSeed => _sessionSeed.Value;
 
+        /// <summary>
+        /// Player count the rooms are currently staged for, on every peer. Zero until the group is
+        /// large enough to stage — clients must not derive lenses before then.
+        /// </summary>
+        public int StagedPlayerCount => _stagedPlayerCount.Value;
+
+        /// <summary>Raised on every peer when the staged player count changes and rooms restage.</summary>
+        public event Action<int> StagedPlayerCountChanged;
+
         /// <summary>Raised on every peer when the server reports something happened.</summary>
         public event Action<SessionEvent> SessionEventReceived;
 
         public override void OnNetworkSpawn()
         {
             Instance = this;
+
+            _stagedPlayerCount.OnValueChanged += OnStagedPlayerCountChanged;
 
             if (!IsServer)
             {
@@ -137,8 +158,15 @@ namespace Session.Netcode
             }
         }
 
+        private void OnStagedPlayerCountChanged(int previous, int current)
+        {
+            StagedPlayerCountChanged?.Invoke(current);
+        }
+
         public override void OnNetworkDespawn()
         {
+            _stagedPlayerCount.OnValueChanged -= OnStagedPlayerCountChanged;
+
             if (IsServer && NetworkManager != null)
             {
                 NetworkManager.OnClientConnectedCallback -= OnClientConnected;
@@ -182,6 +210,11 @@ namespace Session.Netcode
             _slotByClientId[clientId] = slot;
 
             _director.PlayerConnected(new PlayerId(slot));
+
+            // Publish after the director restages, so no client can derive a lens for a count the
+            // server has not staged for.
+            _stagedPlayerCount.Value = _director.ConnectedPlayerCount;
+
             AssignSlotRpc(slot, RpcTarget.Single(clientId, RpcTargetUse.Temp));
         }
 
@@ -198,6 +231,8 @@ namespace Session.Netcode
             var player = new PlayerId(slot);
             _director.PlayerDisconnected(player);
             _movement.Forget(player);
+
+            _stagedPlayerCount.Value = _director.ConnectedPlayerCount;
         }
 
         /// <summary>Which player slot this peer occupies. -1 until the server has said.</summary>

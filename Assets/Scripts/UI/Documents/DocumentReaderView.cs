@@ -1,6 +1,7 @@
 using System;
 using Session.Core.Content;
 using Session.Core.Documents;
+using Session.Core.Text;
 using Session.Runtime.Tuning;
 using Session.Runtime.View;
 using TMPro;
@@ -256,7 +257,7 @@ namespace Session.UI.Documents
                 return;
             }
 
-            var buffer = new Core.Text.TextWriteBuffer(_pageNumberBuffer);
+            var buffer = new TextWriteBuffer(_pageNumberBuffer);
             buffer.Append(_state.PageIndex + 1);
             buffer.Append(' ');
             buffer.Append('/');

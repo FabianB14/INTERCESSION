@@ -30,8 +30,12 @@ before opening the project, or expect a wall of "assembly reference not found" e
 import — they clear as soon as the packages resolve.
 
 1. **Netcode for GameObjects** — Package Manager → Unity Registry → *Netcode for GameObjects*
-   (`com.unity.netcode.gameobjects`). NGO **2.x** is required; the code uses the universal
-   `[Rpc(SendTo.…)]` attribute, not the older `[ServerRpc]`/`[ClientRpc]` pair.
+   (`com.unity.netcode.gameobjects`). The code uses the universal `[Rpc(SendTo.…)]` attribute
+   rather than the older `[ServerRpc]`/`[ClientRpc]` pair, so it needs **1.8 or newer** — that
+   includes every 2.x release. Whatever Package Manager offers on Unity 6 will be fine.
+
+   Careful: the Editor also ships a built-in package called `com.unity.netcode`. That is Netcode
+   for **Entities**, a completely different product, and it is not what this project uses.
 2. **Facepunch transport** — Package Manager → **+** → *Add package from git URL*:
    ```
    https://github.com/Unity-Technologies/multiplayer-community-contributions.git?path=/Transports/com.community.netcode.transport.facepunch
@@ -41,6 +45,20 @@ import — they clear as soon as the packages resolve.
 
 The transport's assembly is named `Facepunch Transport for Netcode for GameObjects` — with spaces.
 That exact string is what `Session.Steam.asmdef` references; it is not a typo.
+
+### API audit status
+
+The Unity-facing assemblies have never been compiled — there is no project to compile them in.
+Every external API they call has been checked against the real source instead:
+
+| Verified against | Covers |
+|---|---|
+| NGO source (`develop`) | `[Rpc]`/`SendTo`/`RpcParams`/`RpcTarget.Single`, `NetworkVariable` ctor and `OnValueChanged`, `CustomMessagingManager`, `FastBufferWriter`/`Reader`, the `NetworkManager` and `NetworkBehaviour` members used |
+| Facepunch.Steamworks source | `SteamClient`, `SteamMatchmaking` events and async lobby calls, `Lobby` methods, `SteamFriends`, the `SteamUser` voice API |
+| TextMeshPro in this Editor install | `TMP_Text.SetCharArray(char[], int, int)` |
+
+That is not the same as compiling. Expect some fixes on first import — most likely in areas no
+signature check can cover, like NGO's codegen constraints on RPC methods.
 
 ## 3. Turn on the MCP server
 
