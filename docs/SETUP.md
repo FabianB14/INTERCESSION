@@ -36,12 +36,22 @@ import — they clear as soon as the packages resolve.
 
    Careful: the Editor also ships a built-in package called `com.unity.netcode`. That is Netcode
    for **Entities**, a completely different product, and it is not what this project uses.
-2. **Facepunch transport** — Package Manager → **+** → *Add package from git URL*:
-   ```
-   https://github.com/Unity-Technologies/multiplayer-community-contributions.git?path=/Transports/com.community.netcode.transport.facepunch
-   ```
-   This bundles the Facepunch.Steamworks DLLs and `steam_api64.dll`, so **do not** also install
-   Facepunch.Steamworks separately — two copies of the same assembly is a guaranteed conflict.
+2. **Facepunch transport** — already in the repo at
+   `Packages/com.community.netcode.transport.facepunch/`, so there is nothing to install.
+
+   It is **vendored deliberately, not by preference.** The upstream package does not compile: as
+   published on `main` it has three `#region` directives and four `#endregion`s, and the stray one
+   at the end of `FacepunchTransport.cs` is a hard `CS1028`. Since a package in `Library/PackageCache`
+   is regenerated and read-only, the only way to fix it is to own a copy.
+
+   The local change is exactly one deletion — the unmatched `#endregion` — so the folder still
+   diffs cleanly against upstream if they ever fix it. It bundles the Facepunch.Steamworks DLLs and
+   `steam_api64.dll`, so **do not** also install Facepunch.Steamworks separately; two copies of the
+   same assembly is a guaranteed conflict.
+
+   If you would rather not vendor it, the alternative is forking the contributions repo, fixing it
+   there, and pointing the manifest at your fork — same one-line fix, but it keeps 5 MB of DLLs out
+   of this repo at the cost of a repo to maintain.
 
 The transport's assembly is named `Facepunch Transport for Netcode for GameObjects` — with spaces.
 That exact string is what `Session.Steam.asmdef` references; it is not a typo.
