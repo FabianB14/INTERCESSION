@@ -48,3 +48,33 @@ Thumbs.db
 # Test results
 /[Tt]est[Rr]esults/
 *.TestResults.xml
+
+# --- Merged from Unity's official .gitignore template ---
+*.slnx
+*.tmp
+*.log
+*.DotSettings.user
+mono_crash.*
+crashlytics-build.properties
+ExportedObj/
+.gradle/
+.consulo/
+.utmp/
+/ServerData
+*.blend1
+*.blend1.meta
+*.pdb.meta
+*.mdb.meta
+*.pidb.meta
+*.unitypackage.meta
+InitTestScene*.unity*
+/[Aa]ssets/[Ii]nit[Tt]est[Ss]cene*.unity*
+/[Aa]ssets/Plugins/Editor/JetBrains*
+/[Aa]ssets/StreamingAssets/aa*
+/[Aa]ssets/AddressableAssetsData/*/*.bin*
+/[Aa]ssets/AddressableAssetsData/link.xml*
+/[Aa]ssets/Addressables_Temp*
+
+# Leftover shell of the nested project Unity Hub created. Holds only its own .git,
+# which belongs to a separate GitHub repo (Intercession-2026-08-09_19-45-04).
+/Intercession/
