@@ -10,6 +10,7 @@ using Steamworks;
 using Unity.Collections;
 using Unity.Netcode;
 using UnityEngine;
+using UnityEngine.InputSystem;
 
 namespace Session.Steam
 {
@@ -40,10 +41,11 @@ namespace Session.Steam
 
         [SerializeField] private SessionCatalogSO _catalog;
 
-        [Tooltip("Off = open mic. On = hold the key. Push-to-talk is kinder to a horror game's mix.")]
+        [Tooltip("Off = open mic. On = hold the button. Push-to-talk is kinder to a horror game's mix.")]
         [SerializeField] private bool _pushToTalk = true;
 
-        [SerializeField] private KeyCode _pushToTalkKey = KeyCode.V;
+        [Tooltip("Hold to transmit. Leave the action unset and push-to-talk falls back to open mic.")]
+        [SerializeField] private InputActionProperty _pushToTalkAction;
 
         [Tooltip("Capture polls per second. Steam buffers internally; this only sets how often we drain it.")]
         [SerializeField, Min(5)] private int _capturePollsPerSecond = 25;
@@ -101,6 +103,8 @@ namespace Session.Steam
 
                 messaging.RegisterNamedMessageHandler(OutboundMessage, OnClientReceivedVoice);
 
+                _pushToTalkAction.action?.Enable();
+
                 SteamUser.VoiceRecord = !_pushToTalk;
                 _recording = !_pushToTalk;
             }
@@ -125,6 +129,8 @@ namespace Session.Steam
             {
                 SteamVoiceRelayLocator.Relay = null;
             }
+
+            _pushToTalkAction.action?.Disable();
 
             SteamUser.VoiceRecord = false;
             _recording = false;
@@ -162,7 +168,28 @@ namespace Session.Steam
                 return;
             }
 
-            bool wanted = Input.GetKey(_pushToTalkKey);
+            InputAction action = _pushToTalkAction.action;
+
+            // No action wired means we cannot tell whether the player is holding anything. Falling
+            // silent would be the worse failure: the whole game is describing rooms to each other,
+            // so an unconfigured mic that never transmits looks like the voice system is broken.
+            // Stay open instead, loudly.
+            if (action == null)
+            {
+                if (!_recording)
+                {
+                    Debug.LogWarning(
+                        "[Session] Push-to-talk is on but no input action is assigned. " +
+                        "Falling back to open mic. Assign one on '" + name + "'.");
+
+                    _recording = true;
+                    SteamUser.VoiceRecord = true;
+                }
+
+                return;
+            }
+
+            bool wanted = action.IsPressed();
             if (wanted == _recording)
             {
                 return;
